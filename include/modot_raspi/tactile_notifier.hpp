@@ -18,9 +18,9 @@ private:
 
   void obstacleDetectedCallback(const std_msgs::msg::Bool::SharedPtr msg);
 
-  static constexpr unsigned int WING_MOTOR_RELAY_PIN = 21;
-
   bool enable_obstacle_notification_;
+
+  int wing_motor_relay_pin_;
 
   int pi_;
 

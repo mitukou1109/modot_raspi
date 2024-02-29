@@ -15,7 +15,7 @@ TactileNotifier::TactileNotifier(const rclcpp::NodeOptions& node_options)
 
 TactileNotifier::TactileNotifier(const std::string& name, const std::string& ns,
                                  const rclcpp::NodeOptions& node_options)
-  : Node(name, ns, node_options), enable_obstacle_notification_(false), pi_(-1)
+  : Node(name, ns, node_options), enable_obstacle_notification_(false), wing_motor_relay_pin_(4), pi_(-1)
 {
   pi_ = pigpio_start(nullptr, nullptr);
 
@@ -24,12 +24,14 @@ TactileNotifier::TactileNotifier(const std::string& name, const std::string& ns,
     throw std::runtime_error("Failed to connect to the pigpio daemon");
   }
 
-  set_mode(pi_, WING_MOTOR_RELAY_PIN, PI_OUTPUT);
-
-  declare_parameter("enable_obstacle_notification", false);
+  declare_parameter("enable_obstacle_notification", enable_obstacle_notification_);
+  declare_parameter("wing_motor_relay_pin", wing_motor_relay_pin_);
   parameter_event_handler_ = std::make_shared<rclcpp::ParameterEventHandler>(this);
   parameter_callback_handles_.push_back(parameter_event_handler_->add_parameter_callback(
       "enable_obstacle_notification", std::bind(&TactileNotifier::enableObstacleNotificationCallback, this, _1)));
+
+  get_parameter("wing_motor_relay_pin", wing_motor_relay_pin_);
+  set_mode(pi_, wing_motor_relay_pin_, PI_OUTPUT);
 
   obstacle_detected_sub_ = create_subscription<std_msgs::msg::Bool>(
       "obstacle_detected", 10, std::bind(&TactileNotifier::obstacleDetectedCallback, this, _1));
@@ -45,14 +47,14 @@ void TactileNotifier::enableObstacleNotificationCallback(const rclcpp::Parameter
 
   enable_obstacle_notification_ = p.as_bool();
 
-  gpio_write(pi_, WING_MOTOR_RELAY_PIN, PI_LOW);
+  gpio_write(pi_, wing_motor_relay_pin_, PI_LOW);
 }
 
 void TactileNotifier::obstacleDetectedCallback(const std_msgs::msg::Bool::SharedPtr msg)
 {
   if (enable_obstacle_notification_)
   {
-    gpio_write(pi_, WING_MOTOR_RELAY_PIN, msg->data ? PI_HIGH : PI_LOW);
+    gpio_write(pi_, wing_motor_relay_pin_, msg->data ? PI_HIGH : PI_LOW);
   }
 }
 }  // namespace modot_raspi
