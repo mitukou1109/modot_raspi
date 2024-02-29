@@ -13,8 +13,8 @@
   <depend>rclcpp_components</depend>
   <depend>std_msgs</depend>
 
-  <exec_depend>librealsense2</exec_depend>
-  <exec_depend>realsense2_camera</exec_depend>
+  <exec_depend>face_recognition_ros</exec_depend>
+  <exec_depend>v4l2_camera</exec_depend>
 
   <export>
     <build_type>ament_cmake</build_type>
