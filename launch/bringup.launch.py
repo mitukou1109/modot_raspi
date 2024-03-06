@@ -17,7 +17,7 @@ def generate_launch_description():
         name="face_identifier",
         output="screen",
         remappings=[("image_raw", "/camera/image_raw")],
-        parameters=[{"publish_result_image": False, "resize_height": 160}],
+        parameters=[{"publish_result_image": True, "resize_height": 160}],
     )
 
     tactile_notifier_node = Node(
