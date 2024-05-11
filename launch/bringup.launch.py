@@ -1,6 +1,5 @@
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument
-from launch.conditions import IfCondition
 from launch.substitutions import LaunchConfiguration
 from launch_ros.actions import Node
 
@@ -36,7 +35,7 @@ def generate_launch_description():
         executable="tactile_notifier_node",
         name="tactile_notifier",
         output="screen",
-        condition=IfCondition(enable_obstacle_notification),
+        parameters=[{"enable_obstacle_notification": enable_obstacle_notification}],
     )
 
     return LaunchDescription(
