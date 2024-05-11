@@ -25,10 +25,13 @@ TactileNotifier::TactileNotifier(const std::string& name, const std::string& ns,
   }
 
   declare_parameter("enable_obstacle_notification", enable_obstacle_notification_);
+  declare_parameter("test_motor", false);
   declare_parameter("wing_motor_relay_pin", wing_motor_relay_pin_);
   parameter_event_handler_ = std::make_shared<rclcpp::ParameterEventHandler>(this);
   parameter_callback_handles_.push_back(parameter_event_handler_->add_parameter_callback(
       "enable_obstacle_notification", std::bind(&TactileNotifier::enableObstacleNotificationCallback, this, _1)));
+  parameter_callback_handles_.push_back(parameter_event_handler_->add_parameter_callback(
+      "test_motor", std::bind(&TactileNotifier::testMotorCallback, this, _1)));
 
   get_parameter("wing_motor_relay_pin", wing_motor_relay_pin_);
   set_mode(pi_, wing_motor_relay_pin_, PI_OUTPUT);
@@ -48,6 +51,17 @@ void TactileNotifier::enableObstacleNotificationCallback(const rclcpp::Parameter
   enable_obstacle_notification_ = p.as_bool();
 
   gpio_write(pi_, wing_motor_relay_pin_, PI_LOW);
+}
+
+void TactileNotifier::testMotorCallback(const rclcpp::Parameter& p)
+{
+  if (p.get_type() != rclcpp::ParameterType::PARAMETER_BOOL)
+  {
+    RCLCPP_ERROR(get_logger(), "Invalid parameter type");
+    return;
+  }
+
+  gpio_write(pi_, wing_motor_relay_pin_, p.as_bool() ? PI_HIGH : PI_LOW);
 }
 
 void TactileNotifier::obstacleDetectedCallback(const std_msgs::msg::Bool::SharedPtr msg)

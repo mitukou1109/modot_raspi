@@ -16,6 +16,8 @@ public:
 private:
   void enableObstacleNotificationCallback(const rclcpp::Parameter& p);
 
+  void testMotorCallback(const rclcpp::Parameter& p);
+
   void obstacleDetectedCallback(const std_msgs::msg::Bool::SharedPtr msg);
 
   bool enable_obstacle_notification_;
